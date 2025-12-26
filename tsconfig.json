@@ -1,15 +1,39 @@
 {
   "compilerOptions": {
+    "tsBuildInfoFile": "./.cache/tsconfig.tsbuildinfo",
     "target": "ESNext",
-    "module": "commonjs",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "types": ["bun", "vite/client"],
+
+    // Bundler
     "allowJs": true,
-    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "isolatedModules": true,
     "esModuleInterop": true,
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "noEmit": true,
+
+    // Strictness
+    "strict": true,
+    "skipLibCheck": true,
     "noImplicitAny": true,
-    "sourceMap": true,
+    "verbatimModuleSyntax": true,
+    "noUncheckedIndexedAccess": true,
+
+    // Paths
     "baseUrl": ".",
-    "outDir": "dist",
-    "moduleResolution": "node",
-    "resolveJsonModule": true
-  }
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "./**/*.ts",
+    "./**/*.tsx",
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }
