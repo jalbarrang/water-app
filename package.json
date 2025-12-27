@@ -1,9 +1,9 @@
 {
   "name": "water-app",
-  "productName": "water-app",
+  "productName": "Water Reminder",
   "version": "1.0.0",
-  "description": "My Electron application description",
-  "main": ".vite/build/main.js",
+  "description": "A simple water reminder app",
+  "main": ".vite/build/app.js",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
@@ -45,7 +45,9 @@
     "vite": "^5.4.21"
   },
   "dependencies": {
+    "croner": "^9.1.0",
     "electron-squirrel-startup": "^1.0.1",
+    "electron-store": "^11.0.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3"
   },
