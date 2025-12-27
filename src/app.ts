@@ -238,3 +238,7 @@ app.on('before-quit', () => {
     scheduler.stop();
   }
 });
+
+if (process.platform === 'win32') {
+  app.setAppUserModelId(app.name);
+}
