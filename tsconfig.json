@@ -3,7 +3,7 @@
     "tsBuildInfoFile": "./.cache/tsconfig.tsbuildinfo",
     "target": "ESNext",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "types": ["bun", "vite/client"],
+    "types": ["vite/client"],
 
     // Bundler
     "allowJs": true,

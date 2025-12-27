@@ -13,10 +13,7 @@ if (started) {
 import log from 'electron-log/main';
 
 // Initialize logging immediately
-log.initialize({ spyRendererConsole: true });
-log.errorHandler.startCatching();
-log.eventLogger.startLogging();
-
+log.initialize();
 log.info('Water Reminder app starting...');
 
 // Helper function to get the correct icon path for both dev and production
@@ -130,6 +127,7 @@ const createSettingsWindow = () => {
     settingsWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
     const rendererPath = path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`);
+    log.info('Loading settings window from', rendererPath);
     settingsWindow.loadFile(rendererPath);
   }
 
@@ -222,9 +220,11 @@ const setupIpcHandlers = () => {
       body: 'Your water reminder settings have been updated.',
       silent: false,
     });
+
     notification.show();
 
     log.info('Settings saved successfully');
+
     return { success: true };
   });
 
