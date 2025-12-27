@@ -1,7 +1,7 @@
 {
   "name": "water-app",
   "productName": "Water Reminder",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple water reminder app",
   "main": ".vite/build/app.js",
   "scripts": {
@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "croner": "^9.1.0",
+    "electron-log": "^5.4.3",
     "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^11.0.2",
     "react": "^19.2.3",

@@ -6,8 +6,28 @@ import path from 'node:path';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
+  log.info('App launched via Squirrel event, quitting...');
   app.quit();
 }
+
+import log from 'electron-log/main';
+
+// Initialize logging immediately
+log.initialize({ spyRendererConsole: true });
+log.errorHandler.startCatching();
+log.eventLogger.startLogging();
+
+log.info('Water Reminder app starting...');
+
+// Helper function to get the correct icon path for both dev and production
+const getIconPath = (): string => {
+  if (app.isPackaged) {
+    // In production, the icon is in the resources folder (via extraResource)
+    return path.join(process.resourcesPath, 'icon.png');
+  }
+  // In development, use the images folder relative to project root
+  return path.join(app.getAppPath(), 'images', 'icon.png');
+};
 
 // Settings store interface
 interface Settings {
@@ -51,6 +71,7 @@ let scheduler: Cron | null = null;
 
 // Function to show water reminder notification
 function showWaterNotification() {
+  log.info('Showing water reminder notification');
   const notification = new Notification({
     title: '💧 Time to Drink Water!',
     body: 'Stay hydrated! Take a moment to drink some water.',
@@ -61,6 +82,7 @@ function showWaterNotification() {
 
   // Update last sent timestamp
   store.set('lastSent', Date.now());
+  log.info('Notification sent and timestamp updated');
 }
 
 // Function to check if notification should be sent
@@ -84,15 +106,17 @@ function checkAndNotify() {
 const createSettingsWindow = () => {
   // If window already exists, focus it
   if (settingsWindow && !settingsWindow.isDestroyed()) {
+    log.info('Settings window already exists, focusing');
     settingsWindow.focus();
     return;
   }
 
+  log.info('Creating settings window');
   settingsWindow = new BrowserWindow({
     width: 400,
     height: 700,
     title: 'Water Reminder Settings',
-    icon: 'images/icon.png',
+    icon: getIconPath(),
     resizable: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -105,9 +129,8 @@ const createSettingsWindow = () => {
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     settingsWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
   } else {
-    settingsWindow.loadFile(
-      path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
-    );
+    const rendererPath = path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`);
+    settingsWindow.loadFile(rendererPath);
   }
 
   // Don't quit app when window is closed
@@ -118,8 +141,12 @@ const createSettingsWindow = () => {
 
 // Initialize system tray
 const createTray = () => {
-  tray = new Tray('images/icon.png');
+  log.info('Creating system tray');
+  const iconPath = getIconPath();
+  const icon = nativeImage.createFromPath(iconPath);
+  tray = new Tray(icon);
   tray.setToolTip('Water Reminder');
+  log.info('System tray created successfully');
 
   const contextMenu = Menu.buildFromTemplate([
     {
@@ -149,12 +176,14 @@ const createTray = () => {
 
 // Initialize the scheduler
 const initScheduler = () => {
+  log.info('Initializing notification scheduler');
   // Run every minute to check if we should send a notification
   scheduler = new Cron('* * * * *', () => {
     checkAndNotify();
   });
 
   store.set('lastSent', Date.now());
+  log.info('Scheduler initialized and running');
 };
 
 // Setup IPC handlers
@@ -167,13 +196,16 @@ const setupIpcHandlers = () => {
 
   // Save settings
   ipcMain.handle('save-settings', (_event, newSettings: Partial<Settings>) => {
+    log.info('Saving settings', newSettings);
     // Update store
     if (newSettings.intervalMinutes !== undefined) {
       store.set('intervalMinutes', newSettings.intervalMinutes);
+      log.info(`Interval updated to ${newSettings.intervalMinutes} minutes`);
     }
 
     if (newSettings.openAtLogin !== undefined) {
       store.set('openAtLogin', newSettings.openAtLogin);
+      log.info(`Open at login set to ${newSettings.openAtLogin}`);
 
       // Update Windows auto-launch setting
       app.setLoginItemSettings({
@@ -192,11 +224,13 @@ const setupIpcHandlers = () => {
     });
     notification.show();
 
+    log.info('Settings saved successfully');
     return { success: true };
   });
 
   // Test notification
   ipcMain.handle('test-notification', () => {
+    log.info('Test notification requested');
     showWaterNotification();
     return { success: true };
   });
@@ -205,6 +239,7 @@ const setupIpcHandlers = () => {
 // Configure auto-launch on first run
 const configureAutoLaunch = () => {
   const openAtLogin = store.get('openAtLogin');
+  log.info(`Configuring auto-launch: ${openAtLogin}`);
   app.setLoginItemSettings({
     openAtLogin,
   });
@@ -212,10 +247,12 @@ const configureAutoLaunch = () => {
 
 // App ready event
 app.whenReady().then(() => {
+  log.info('App is ready, initializing components');
   setupIpcHandlers();
   createTray();
   initScheduler();
   configureAutoLaunch();
+  log.info('All components initialized successfully');
 });
 
 // Prevent app from quitting when all windows are closed
@@ -233,9 +270,11 @@ app.on('activate', () => {
 
 // Cleanup on app quit
 app.on('before-quit', () => {
+  log.info('App is quitting, cleaning up');
   // if scheduler is running, stop it
   if (scheduler) {
     scheduler.stop();
+    log.info('Scheduler stopped');
   }
 });
 
