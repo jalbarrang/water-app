@@ -5,6 +5,10 @@ import Store, { type Schema } from 'electron-store';
 import path from 'node:path';
 import { updateElectronApp } from 'update-electron-app';
 
+if (process.platform === 'win32') {
+  app.setAppUserModelId('cl.drekki.water-app');
+}
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   log.info('App launched via Squirrel event, quitting...');
@@ -313,7 +317,3 @@ app.on('before-quit', () => {
     log.info('Scheduler stopped');
   }
 });
-
-if (process.platform === 'win32') {
-  app.setAppUserModelId(app.name);
-}
