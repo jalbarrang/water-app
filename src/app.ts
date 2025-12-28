@@ -13,6 +13,14 @@ if (started) {
 
 import log from 'electron-log/main';
 
+// Ensure only one instance of the app is running
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  log.info('Another instance is already running, quitting...');
+  app.quit();
+}
+
 // Initialize logging immediately
 log.initialize();
 log.info('Water Reminder app starting...');
@@ -275,6 +283,12 @@ app.whenReady().then(() => {
   }
 
   log.info('All components initialized successfully');
+});
+
+// Handle second instance attempt - show settings window
+app.on('second-instance', () => {
+  log.info('Second instance detected, focusing settings window');
+  createSettingsWindow();
 });
 
 // Prevent app from quitting when all windows are closed
