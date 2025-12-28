@@ -3,6 +3,7 @@ import { app, BrowserWindow, ipcMain, Menu, nativeImage, Notification, Tray } fr
 import started from 'electron-squirrel-startup';
 import Store, { type Schema } from 'electron-store';
 import path from 'node:path';
+import { updateElectronApp } from 'update-electron-app';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -258,6 +259,10 @@ const configureAutoLaunch = () => {
 // App ready event
 app.whenReady().then(() => {
   log.info('App is ready, initializing components');
+  updateElectronApp({
+    logger: log,
+  });
+
   setupIpcHandlers();
   createTray();
   initScheduler();
