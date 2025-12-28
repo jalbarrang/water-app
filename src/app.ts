@@ -3,6 +3,7 @@ import { app, BrowserWindow, ipcMain, Menu, nativeImage, Notification, Tray } fr
 import started from 'electron-squirrel-startup';
 import Store, { type Schema } from 'electron-store';
 import path from 'node:path';
+import { updateElectronApp } from 'update-electron-app';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -31,6 +32,7 @@ interface Settings {
   intervalMinutes: number;
   lastSent: number;
   openAtLogin: boolean;
+  openSettingsOnLaunch: boolean;
 }
 
 // Define schema for electron-store
@@ -46,6 +48,10 @@ const schema: Schema<Settings> = {
   openAtLogin: {
     type: 'boolean',
     default: false,
+  },
+  openSettingsOnLaunch: {
+    type: 'boolean',
+    default: true,
   },
 };
 
@@ -211,6 +217,11 @@ const setupIpcHandlers = () => {
       });
     }
 
+    if (newSettings.openSettingsOnLaunch !== undefined) {
+      store.set('openSettingsOnLaunch', newSettings.openSettingsOnLaunch);
+      log.info(`Open settings on launch set to ${newSettings.openSettingsOnLaunch}`);
+    }
+
     // Update lastSent to now
     store.set('lastSent', Date.now());
 
@@ -248,10 +259,21 @@ const configureAutoLaunch = () => {
 // App ready event
 app.whenReady().then(() => {
   log.info('App is ready, initializing components');
+  updateElectronApp({
+    logger: log,
+  });
+
   setupIpcHandlers();
   createTray();
   initScheduler();
   configureAutoLaunch();
+
+  // Open settings window on launch if enabled
+  if (store.get('openSettingsOnLaunch')) {
+    log.info('Opening settings window on launch');
+    createSettingsWindow();
+  }
+
   log.info('All components initialized successfully');
 });
 
