@@ -31,6 +31,7 @@ interface Settings {
   intervalMinutes: number;
   lastSent: number;
   openAtLogin: boolean;
+  openSettingsOnLaunch: boolean;
 }
 
 // Define schema for electron-store
@@ -46,6 +47,10 @@ const schema: Schema<Settings> = {
   openAtLogin: {
     type: 'boolean',
     default: false,
+  },
+  openSettingsOnLaunch: {
+    type: 'boolean',
+    default: true,
   },
 };
 
@@ -211,6 +216,11 @@ const setupIpcHandlers = () => {
       });
     }
 
+    if (newSettings.openSettingsOnLaunch !== undefined) {
+      store.set('openSettingsOnLaunch', newSettings.openSettingsOnLaunch);
+      log.info(`Open settings on launch set to ${newSettings.openSettingsOnLaunch}`);
+    }
+
     // Update lastSent to now
     store.set('lastSent', Date.now());
 
@@ -252,6 +262,13 @@ app.whenReady().then(() => {
   createTray();
   initScheduler();
   configureAutoLaunch();
+
+  // Open settings window on launch if enabled
+  if (store.get('openSettingsOnLaunch')) {
+    log.info('Opening settings window on launch');
+    createSettingsWindow();
+  }
+
   log.info('All components initialized successfully');
 });
 

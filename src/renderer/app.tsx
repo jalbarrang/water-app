@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 export const App = () => {
   const [intervalMinutes, setIntervalMinutes] = useState<number>(60);
   const [openAtLogin, setOpenAtLogin] = useState<boolean>(true);
+  const [openSettingsOnLaunch, setOpenSettingsOnLaunch] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
@@ -18,6 +19,7 @@ export const App = () => {
         const settings = await window.electronAPI.getSettings();
         setIntervalMinutes(settings.intervalMinutes);
         setOpenAtLogin(settings.openAtLogin);
+        setOpenSettingsOnLaunch(settings.openSettingsOnLaunch);
       } catch (error) {
         console.error('Failed to load settings:', error);
       } finally {
@@ -34,6 +36,7 @@ export const App = () => {
       await window.electronAPI.saveSettings({
         intervalMinutes,
         openAtLogin,
+        openSettingsOnLaunch,
       });
       // Settings saved notification is shown by the main process
     } catch (error) {
@@ -122,6 +125,20 @@ export const App = () => {
             />
             <label htmlFor="autolaunch" className="ml-3 text-sm font-medium text-gray-700">
               Run on login
+            </label>
+          </div>
+
+          {/* Open Settings on Launch Setting */}
+          <div className="flex items-center">
+            <input
+              id="openOnLaunch"
+              type="checkbox"
+              checked={openSettingsOnLaunch}
+              onChange={(e) => setOpenSettingsOnLaunch(e.target.checked)}
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+            />
+            <label htmlFor="openOnLaunch" className="ml-3 text-sm font-medium text-gray-700">
+              Open settings on launch
             </label>
           </div>
         </div>

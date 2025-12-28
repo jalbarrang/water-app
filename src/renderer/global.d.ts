@@ -4,6 +4,7 @@ interface Settings {
   intervalMinutes: number;
   lastSent: number;
   openAtLogin: boolean;
+  openSettingsOnLaunch: boolean;
 }
 
 interface ElectronAPI {

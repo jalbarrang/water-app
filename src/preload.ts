@@ -5,6 +5,7 @@ interface Settings {
   intervalMinutes: number;
   lastSent: number;
   openAtLogin: boolean;
+  openSettingsOnLaunch: boolean;
 }
 
 // Expose protected methods that allow the renderer process to use
